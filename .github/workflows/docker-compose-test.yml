@@ -9,14 +9,6 @@ on:
     
 env: 
   REGISTRY: ghcr.io
-  COMPOSE_PROJECT_NAME: vitaquest
-  CONNECTION_STRING: {{ secrets.CONNECTION_STRING }}
-  BADGE_DBNAME: badges
-  MOODBOOSTER_DBNAME: moodboosters
-  USER_DBNAME: users
-  CHALLENGE_DBNAME: challenges
-  NEWS_DBNAME: news
-  EVENT_DBNAME: events
 
 jobs:
 
@@ -61,5 +53,14 @@ jobs:
     
     - name: Build and run docker compose stack
       run: docker compose up -d
+      env:
+        COMPOSE_PROJECT_NAME: vitaquest
+        CONNECTION_STRING: { { secrets.CONNECTION_STRING } }
+        BADGE_DBNAME: badges
+        MOODBOOSTER_DBNAME: moodboosters
+        USER_DBNAME: users
+        CHALLENGE_DBNAME: challenges
+        NEWS_DBNAME: news
+        EVENT_DBNAME: events
     - name: Check running containers
       run: docker ps -a
