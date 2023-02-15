@@ -1,0 +1,34 @@
+﻿apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+spec:
+  type: pubsub.rabbitmq
+  version: v1
+  metadata:
+    - name: host
+      secretKeyRef:
+        name: pubsub-connection
+        key: pubsub-connection
+    - name: durable
+      value: true
+    - name: deleteWhenUnused
+      value: "false"
+      # https://www.rabbitmq.com/confirms.html
+    - name: autoAck
+      value: "true"
+    - name: reconnectWait
+      value: "0"
+    - name: concurrency
+      value: parallel
+
+scopes:
+  - user-service
+  - moodbooster-service
+  - badge-service
+  - challenge-service
+  - event-service
+  - feed-service
+
+auth:
+  secretStore: kubernetes

@@ -1,0 +1,35 @@
+application:
+  title: News service
+  version: 1.0
+
+server:
+  port: 5007
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql=true:
+    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwl-set-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/discovery/v2.0/keys
+          issuer-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/v2.0
+          audiences: 349fa8f3-bea0-4ee5-8205-e301e3d3f197
+  data:
+    mongodb:
+      database: news
+      port: 27017
+      host: localhost
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  mongodb:
+    embedded:
+      version: 3.3.3

@@ -1,0 +1,388 @@
+# Set .env vars with:
+# kubectl delete secret env-vars
+# kubectl create secret generic env-vars --from-env-file=.env
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: gateway-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "gateway"
+        dapr.io/app-port: "5000"
+    spec:
+      containers:
+        - name: gateway-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/gateway:latest # Remote Docker image
+          ports:
+            - containerPort: 5000 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: spring_profiles_active
+              value: production
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moodboosterservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moodboosterservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: moodboosterservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "moodbooster-service"
+        dapr.io/app-port: "5001"
+    spec:
+      containers:
+        - name: moodboosterservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/moodbooster-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5001 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: spring_profiles_active
+              value: production
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: ACTIVITY_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: userservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "user-service"
+        dapr.io/app-port: "5002"
+    spec:
+      containers:
+        - name: userservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/user-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5002 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: USER_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feedservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feedservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: feedservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "feed-service"
+        dapr.io/app-port: "5007"
+    spec:
+      containers:
+        - name: feedservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/feed-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5007 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: NEWS_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: badgeservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: badgeservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: badgeservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "badge-service"
+        dapr.io/app-port: "5003"
+    spec:
+      containers:
+        - name: badgeservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/badge-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5003 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: spring_profiles_active
+              value: production
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: BADGE_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: challengeservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: challengeservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: challengeservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "challenge-service"
+        dapr.io/app-port: "5004"
+    spec:
+      containers:
+        - name: challengeservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/challenge-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5004 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CHALLENGE_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: eventservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "event-service"
+        dapr.io/app-port: "5008"
+    spec:
+      containers:
+        - name: eventservice-container # Name we want to give the container
+          image: ghcr.io/s6-vitaapp/event-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5008 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: CONNECTION_STRING
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: EVENT_DBNAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: vitaappgw
+  name: gateway-service # Name of the service
+spec:
+  selector:
+    app: gateway-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 80 # Port that we want to reach the service running on the pods on
+      targetPort: 5000 # Port that the running service exposes within the container
+  type: LoadBalancer
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: moodboosterservice-service # Name of the service
+spec:
+  selector:
+    app: moodboosterservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5001 # Port that we want to reach the service running on the pods on
+      targetPort: 5001 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: userservice-service # Name of the service
+spec:
+  selector:
+    app: userservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5002 # Port that we want to reach the service running on the pods on
+      targetPort: 5002 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: feedservice-service # Name of the service
+spec:
+  selector:
+    app: feedservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5007 # Port that we want to reach the service running on the pods on
+      targetPort: 5007 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: badgeservice-service # Name of the service
+spec:
+  selector:
+    app: badgeservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5003 # Port that we want to reach the service running on the pods on
+      targetPort: 5003 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: challengeservice-service # Name of the service
+spec:
+  selector:
+    app: challengeservice-pod # Send traffic to pods with this label
+  ports:    
+    - name: default
+      port: 5004 # Port that we want to reach the service running on the pods on
+      targetPort: 5004 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: eventservice-service # Name of the service
+spec:
+  selector:
+    app: eventservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5008 # Port that we want to reach the service running on the pods on
+      targetPort: 5008 # Port that the running service exposes within the container
+  type: ClusterIP

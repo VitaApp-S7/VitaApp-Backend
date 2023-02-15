@@ -1,0 +1,47 @@
+application:
+  title: User Service
+  version: 1.0
+
+logging:
+  level:
+    root: DEBUG
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: INFO
+
+server:
+  port: 5002
+
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/discovery/v2.0/keys
+          issuer-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/v2.0
+          audiences: 215b09e4-54cb-49aa-837b-546f73fc29f6
+
+
+
+  data:
+    mongodb:
+      uri: ${CONNECTION_STRING}
+      database: ${DB_NAME}
+      auto-index-creation: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+mongodb.encrypt:
+  keys:
+    - version: 1
+      key: hqHKBLV83LpCqzKpf8OvutbCs+O5wX5BPu3btWpEvXA=

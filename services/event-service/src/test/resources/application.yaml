@@ -1,0 +1,40 @@
+application:
+  title: Event Service
+  version: 1.0
+
+server:
+  port: 5008
+
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql=true:
+    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/discovery/v2.0/keys
+          issuer-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/v2.0
+          audiences: a12710a0-aefb-414a-9fc0-2fb3792e7aa5
+
+
+
+  data:
+    mongodb:
+      database: event
+      port: 27017
+      host: localhost
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  mongodb:
+    embedded:
+      version: 3.3.3

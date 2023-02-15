@@ -1,0 +1,260 @@
+# Use docker compose down && docker compose up --build -d to apply written changes and debug in Docker
+version: '3.7'
+
+services:
+  gateway:
+    build: gateway
+    hostname: gateway
+    restart: always
+    ports:
+      - "5000:5000"
+    networks:
+      - local-dev
+    environment:
+      spring_profiles_active: dev
+
+  gateway-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "-app-id", "gateway",
+      "-app-port", "5000",
+      "-placement-host-address", "placement:50006",
+      "-components-path", "/components",
+      "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - gateway
+    network_mode: "service:gateway"
+
+
+  # Add dapr placement
+  challenge-service:
+    build: services/challenge-service
+    hostname: challenge-service
+    restart: always
+    ports:
+      - "5004:5004"
+      - "50004:50004"
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${CHALLENGE_DBNAME}
+    env_file:
+      - .env
+
+  challenge-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "-app-id", "challenge-service",
+      "-app-port", "5004",
+      "-placement-host-address", "placement:50006",
+      "-components-path", "/components",
+      "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - moodbooster-service
+    network_mode: "service:challenge-service"
+
+  moodbooster-service:
+    build: services/moodbooster-service
+    hostname: moodbooster-service
+    restart: always
+    ports:
+      - "5001:5001"
+      - "50001:50001"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${MOODBOOSTER_DBNAME}
+    env_file:
+      - .env
+
+  moodbooster-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+        "./daprd",
+        "-app-id", "moodbooster-service",
+        "-app-port", "5001",
+        "-placement-host-address", "placement:50006",
+        "-components-path", "/components",
+        "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - moodbooster-service
+    network_mode: "service:moodbooster-service"
+
+  user-service:
+    build: services/user-service
+    hostname: user-service
+    restart: always
+    ports:
+      - "5002:5002"
+      - "50002:50002"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${USER_DBNAME}
+    env_file:
+      - .env
+
+  user-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+        "./daprd",
+        "-app-id", "user-service",
+        "-app-port", "5002",
+        "-placement-host-address", "placement:50006",
+        "-components-path", "/components",
+        "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - user-service
+    network_mode: "service:user-service"
+
+  feed-service:
+    build: services/feed-service
+    hostname: feed-service
+    restart: always
+    ports:
+      - "5007:5007"
+      - "50007:50007"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${NEWS_DBNAME}
+    env_file:
+      - .env
+
+  feed-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "-app-id", "feed-service",
+      "-app-port", "5007",
+      "-placement-host-address", "placement:50006",
+      "-components-path", "/components",
+      "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - feed-service
+    network_mode: "service:feed-service"
+
+  placement:
+    image: "daprio/dapr"
+    command: ["./placement", "-port", "50006"]
+    ports:
+      - "50006:50006"
+    networks:
+      - local-dev
+
+  rabbitmq:
+    image: rabbitmq:3.8.27-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - local-dev
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
+  badge-service:
+    build: services/badge-service
+    hostname: badge-service
+    restart: always
+    ports:
+      - "5003:5003"
+      - "50003:50003"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${BADGE_DBNAME}
+    env_file:
+      - .env
+
+  badge-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+        "./daprd",
+        "-app-id", "badge-service",
+        "-app-port", "5003",
+        "-placement-host-address", "placement:50006",
+        "-components-path", "/components",
+        "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - badge-service
+    network_mode: "service:badge-service"
+
+  event-service:
+    build: services/event-service
+    hostname: event-service
+    restart: always
+    ports:
+      - "5008:5008"
+      - "50008:50008"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      CONNECTION_STRING: ${CONNECTION_STRING}
+      DB_NAME: ${EVENT_DBNAME}
+    env_file:
+      - .env
+
+  event-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "-app-id", "event-service",
+      "-app-port", "5008",
+      "-placement-host-address", "placement:50006",
+      "-components-path", "/components",
+      "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - event-service
+    network_mode: "service:event-service"
+
+networks:
+  local-dev:
+
+
