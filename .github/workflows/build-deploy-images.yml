@@ -99,45 +99,45 @@ jobs:
 
 
 # Automatisch deployen werkt voorlopig niet omdat we niet genoeg rechten hebben in Azure. Voor nu kunnen we handmatig deployen.
-
-  deploy:
-     permissions:
-       id-token: write
-       contents: read
-    
-     needs: build_push_images
-     runs-on: ubuntu-latest
-     name: Deploy images to AKS
-
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v2
-        
-       - name: Set up kubelogin for non-interactive login
-         run: |
-           curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
-           sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
-           rm -f kubelogin-linux-amd64.zip
-           kubelogin --version
-
-       - uses: azure/login@v1
-         with:
-           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-       - name: Set AKS context
-         uses: azure/aks-set-context@v2.1
-         with:
-           cluster-name: VitaApp
-           resource-group: VitaApp-deploy
-           admin: false
-           use-kubelogin: true
-
-       - name: Deploy to AKS
-         uses: azure/k8s-deploy@v3.1
-         with:
-           action: deploy
-           manifests: |
-             deploy/kubernetes-deployment.yaml
-             deploy/pubsub.yaml
-             deploy/newUserSubscription.yaml
-             deploy/completeMoodbooster.yaml
+#
+#  deploy:
+#     permissions:
+#       id-token: write
+#       contents: read
+#
+#     needs: build_push_images
+#     runs-on: ubuntu-latest
+#     name: Deploy images to AKS
+#
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
+#
+#       - name: Set up kubelogin for non-interactive login
+#         run: |
+#           curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+#           sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
+#           rm -f kubelogin-linux-amd64.zip
+#           kubelogin --version
+#
+#       - uses: azure/login@v1
+#         with:
+#           creds: ${{ secrets.AZURE_CREDENTIALS }}
+#
+#       - name: Set AKS context
+#         uses: azure/aks-set-context@v2.1
+#         with:
+#           cluster-name: VitaApp
+#           resource-group: VitaApp-deploy
+#           admin: false
+#           use-kubelogin: true
+#
+#       - name: Deploy to AKS
+#         uses: azure/k8s-deploy@v3.1
+#         with:
+#           action: deploy
+#           manifests: |
+#             deploy/kubernetes-deployment.yaml
+#             deploy/pubsub.yaml
+#             deploy/newUserSubscription.yaml
+#             deploy/completeMoodbooster.yaml
