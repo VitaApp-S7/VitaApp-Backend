@@ -4,8 +4,6 @@
 name: Build & test services
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
