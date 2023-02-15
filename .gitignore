@@ -183,5 +183,4 @@ src/services/moodbooster-service/.mvn/wrapper/maven-wrapper.jar
 .vs/
 .vscode/
 /.idea/
-.env
 /deploy/imagepullsecret.yaml
