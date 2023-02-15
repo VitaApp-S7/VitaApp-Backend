@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: gateway-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/gateway:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/gateway:latest # Remote Docker image
           ports:
             - containerPort: 5000 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
         - name: moodboosterservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/moodbooster-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/moodbooster-service:latest # Remote Docker image
           ports:
             - containerPort: 5001 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -98,7 +98,7 @@ spec:
     spec:
       containers:
         - name: userservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/user-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/user-service:latest # Remote Docker image
           ports:
             - containerPort: 5002 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -140,7 +140,7 @@ spec:
     spec:
       containers:
         - name: feedservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/feed-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/feed-service:latest # Remote Docker image
           ports:
             - containerPort: 5007 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -180,7 +180,7 @@ spec:
     spec:
       containers:
         - name: badgeservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/badge-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/badge-service:latest # Remote Docker image
           ports:
             - containerPort: 5003 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -222,7 +222,7 @@ spec:
     spec:
       containers:
         - name: challengeservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/challenge-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/challenge-service:latest # Remote Docker image
           ports:
             - containerPort: 5004 # Expose the port that the service/app runs on
           imagePullPolicy: Always
@@ -262,7 +262,7 @@ spec:
     spec:
       containers:
         - name: eventservice-container # Name we want to give the container
-          image: ghcr.io/s6-vitaapp/event-service:latest # Remote Docker image
+          image: ghcr.io/vitaapp-s7/event-service:latest # Remote Docker image
           ports:
             - containerPort: 5008 # Expose the port that the service/app runs on
           imagePullPolicy: Always

@@ -11,13 +11,13 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  MOODBOOSTER_TAG_PUSH: ghcr.io/s6-vitaapp/moodbooster-service:${{ github.sha }}
-  USER_TAG_PUSH: ghcr.io/s6-vitaapp/user-service:${{ github.sha }}
-  BADGE_TAG_PUSH: ghcr.io/s6-vitaapp/badge-service:${{ github.sha }}
-  CHALLENGE_TAG_PUSH: ghcr.io/s6-vitaapp/challenge-service:${{ github.sha }}
-  GATEWAY_TAG_PUSH: ghcr.io/s6-vitaapp/gateway:${{ github.sha }}
-  FEED_TAG_PUSH: ghcr.io/s6-vitaapp/feed-service:${{ github.sha }}
-  EVENT_TAG_PUSH: ghcr.io/s6-vitaapp/event-service:${{ github.sha }}
+  MOODBOOSTER_TAG_PUSH: ghcr.io/vitaapp-s7/moodbooster-service:${{ github.sha }}
+  USER_TAG_PUSH: ghcr.io/vitaapp-s7/user-service:${{ github.sha }}
+  BADGE_TAG_PUSH: ghcr.io/vitaapp-s7/badge-service:${{ github.sha }}
+  CHALLENGE_TAG_PUSH: ghcr.io/vitaapp-s7/challenge-service:${{ github.sha }}
+  GATEWAY_TAG_PUSH: ghcr.io/vitaapp-s7/gateway:${{ github.sha }}
+  FEED_TAG_PUSH: ghcr.io/vitaapp-s7/feed-service:${{ github.sha }}
+  EVENT_TAG_PUSH: ghcr.io/vitaapp-s7/event-service:${{ github.sha }}
 
 jobs:
 
@@ -100,47 +100,44 @@ jobs:
 
 # Automatisch deployen werkt voorlopig niet omdat we niet genoeg rechten hebben in Azure. Voor nu kunnen we handmatig deployen.
 
-#   deploy:
-      
-#     permissions:
-#       id-token: write
-#       contents: read
+  deploy:
+     permissions:
+       id-token: write
+       contents: read
     
-#     needs: build_push_images
-#     runs-on: ubuntu-latest
-#     name: Deploy images to AKS
+     needs: build_push_images
+     runs-on: ubuntu-latest
+     name: Deploy images to AKS
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
+     steps:
+       - name: Checkout
+         uses: actions/checkout@v2
         
-#       - name: Set up kubelogin for non-interactive login
-#         run: |
-#           curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
-#           sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
-#           rm -f kubelogin-linux-amd64.zip
-#           kubelogin --version
+       - name: Set up kubelogin for non-interactive login
+         run: |
+           curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.9/kubelogin-linux-amd64.zip
+           sudo unzip -j kubelogin-linux-amd64.zip -d /usr/local/bin
+           rm -f kubelogin-linux-amd64.zip
+           kubelogin --version
 
-#       - uses: azure/login@v1
-#         with:
-#           client-id: f873eb26-1bdb-40d4-9ec4-4daf1cc5dfce
-#           tenant-id: 913b1a98-9696-4db5-b548-9e17b6d3fc68
-#           subscription-id: 72bdc001-4d4e-49a2-817d-1bde2cf26be6
+       - uses: azure/login@v1
+         with:
+           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-#       - name: Set AKS context
-#         uses: azure/aks-set-context@v2.1
-#         with:
-#           cluster-name: VitaApp
-#           resource-group: VitaApp-deploy
-#           admin: false
-#           use-kubelogin: true
+       - name: Set AKS context
+         uses: azure/aks-set-context@v2.1
+         with:
+           cluster-name: VitaApp
+           resource-group: VitaApp-deploy
+           admin: false
+           use-kubelogin: true
 
-#       - name: Deploy to AKS
-#         uses: azure/k8s-deploy@v3.1
-#         with:
-#           action: deploy
-#           manifests: |
-#             deploy/kubernetes-deployment.yaml
-#             deploy/pubsub.yaml
-#             deploy/newUserSubscription.yaml
-#             deploy/completeMoodbooster.yaml
+       - name: Deploy to AKS
+         uses: azure/k8s-deploy@v3.1
+         with:
+           action: deploy
+           manifests: |
+             deploy/kubernetes-deployment.yaml
+             deploy/pubsub.yaml
+             deploy/newUserSubscription.yaml
+             deploy/completeMoodbooster.yaml
