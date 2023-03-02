@@ -47,7 +47,13 @@ public class UserService {
     public void increaseUserMood(CompleteMoodboosterDTO dto) throws IllegalAccessException {
         for (String userid: dto.getUserIds()) {
             User user = getUserById(userid);
-            user.setMood(user.getMood() + dto.getPoints());
+            if(user.getMood() + dto.getPoints() > 20){
+                user.setMood(20);
+            }
+            else {
+                user.setMood(user.getMood() + dto.getPoints());
+            }
+
             repository.save(user);
         }
     }
