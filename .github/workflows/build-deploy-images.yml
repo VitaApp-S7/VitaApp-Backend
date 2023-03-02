@@ -11,13 +11,13 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  MOODBOOSTER_TAG_PUSH: ghcr.io/vitaapp-s7/moodbooster-service:${{ github.sha }}
-  USER_TAG_PUSH: ghcr.io/vitaapp-s7/user-service:${{ github.sha }}
-  BADGE_TAG_PUSH: ghcr.io/vitaapp-s7/badge-service:${{ github.sha }}
-  CHALLENGE_TAG_PUSH: ghcr.io/vitaapp-s7/challenge-service:${{ github.sha }}
-  GATEWAY_TAG_PUSH: ghcr.io/vitaapp-s7/gateway:${{ github.sha }}
-  FEED_TAG_PUSH: ghcr.io/vitaapp-s7/feed-service:${{ github.sha }}
-  EVENT_TAG_PUSH: ghcr.io/vitaapp-s7/event-service:${{ github.sha }}
+  MOODBOOSTER_TAG_PUSH: ghcr.io/vitaapp-s7/moodbooster-service
+  USER_TAG_PUSH: ghcr.io/vitaapp-s7/user-service
+  BADGE_TAG_PUSH: ghcr.io/vitaapp-s7/badge-service
+  CHALLENGE_TAG_PUSH: ghcr.io/vitaapp-s7/challenge-service
+  GATEWAY_TAG_PUSH: ghcr.io/vitaapp-s7/gateway
+  FEED_TAG_PUSH: ghcr.io/vitaapp-s7/feed-service
+  EVENT_TAG_PUSH: ghcr.io/vitaapp-s7/event-service
 
 jobs:
 
@@ -52,35 +52,45 @@ jobs:
         with:
           context: gateway
           push: true
-          tags: ${{ env.GATEWAY_TAG_PUSH }}
+          tags: |
+            ${{ env.GATEWAY_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.GATEWAY_TAG_PUSH }}:latest
 
       - name: Build & push moodbooster
         uses: docker/build-push-action@v2
         with:
           context: services/moodbooster-service
           push: true
-          tags: ${{ env.MOODBOOSTER_TAG_PUSH }}
+          tags: |
+            ${{ env.MOODBOOSTER_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.MOODBOOSTER_TAG_PUSH }}:latest
 
       - name: Build & push user
         uses: docker/build-push-action@v2
         with:
           context: services/user-service
           push: true
-          tags: ${{ env.USER_TAG_PUSH }}
+          tags: |
+            ${{ env.USER_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.USER_TAG_PUSH }}:latest
 
       - name: Build & push badge
         uses: docker/build-push-action@v2
         with:
           context: services/badge-service
           push: true
-          tags: ${{ env.BADGE_TAG_PUSH }}
+          tags: |
+            ${{ env.BADGE_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.BADGE_TAG_PUSH }}:latest
 
       - name: Build & push challenge
         uses: docker/build-push-action@v2
         with:
           context: services/challenge-service
           push: true
-          tags: ${{ env.CHALLENGE_TAG_PUSH }}
+          tags: |
+            ${{ env.CHALLENGE_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.CHALLENGE_TAG_PUSH }}:latest
 
 
       - name: Build & push feed
@@ -88,14 +98,18 @@ jobs:
         with:
           context: services/feed-service
           push: true
-          tags: ${{ env.FEED_TAG_PUSH }}
+          tags: |
+            ${{ env.FEED_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.FEED_TAG_PUSH }}:latest
 
       - name: Build & push event
         uses: docker/build-push-action@v2
         with:
           context: services/event-service
           push: true
-          tags: ${{ env.EVENT_TAG_PUSH }}
+          tags: | 
+            ${{ env.EVENT_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.EVENT_TAG_PUSH }}:latest
 
 
 # Automatisch deployen werkt voorlopig niet omdat we niet genoeg rechten hebben in Azure. Voor nu kunnen we handmatig deployen.
