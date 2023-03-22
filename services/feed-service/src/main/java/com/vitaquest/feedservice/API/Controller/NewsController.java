@@ -2,6 +2,7 @@ package com.vitaquest.feedservice.API.Controller;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.vitaquest.feedservice.Domain.DTO.AddNewsDTO;
+import com.vitaquest.feedservice.Domain.DTO.UpdateNewsDTO;
 import com.vitaquest.feedservice.Domain.Models.News;
 import com.vitaquest.feedservice.Domain.Service.NewsService;
 import io.swagger.annotations.Api;
@@ -38,6 +39,16 @@ public class NewsController {
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
         if (isAdmin(authContext)) {
               return new ResponseEntity<>(service.addNews(DTO), HttpStatus.CREATED);
+        }
+        else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    @ApiOperation(value = "Update news")
+    @PutMapping("/update")
+    public @ResponseBody ResponseEntity<News> updateNews(@RequestBody UpdateNewsDTO DTO) throws IllegalAccessException {
+        Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
+        if (isAdmin(authContext)) {
+            return new ResponseEntity<>(service.updateNews(DTO), HttpStatus.CREATED);
         }
         else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }

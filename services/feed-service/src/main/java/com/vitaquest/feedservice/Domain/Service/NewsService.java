@@ -3,6 +3,7 @@ package com.vitaquest.feedservice.Domain.Service;
 import com.vitaquest.feedservice.Database.Repository.INewsRepository;
 import com.vitaquest.feedservice.Domain.DTO.AddNewsDTO;
 import com.vitaquest.feedservice.Domain.DTO.AllUserNotificationDTO;
+import com.vitaquest.feedservice.Domain.DTO.UpdateNewsDTO;
 import com.vitaquest.feedservice.Domain.Models.News;
 
 import io.dapr.client.DaprClient;
@@ -59,5 +60,16 @@ public class NewsService {
         }
         News news = foundNews.get();
         repository.delete(news);
+    }
+
+    public News updateNews(UpdateNewsDTO DTO){
+        // get existing news by id
+        News existingNews = getNewsByID(DTO.getId());
+        // update news fields
+        existingNews.setTitle(DTO.getTitle());
+        existingNews.setDescription(DTO.getDescription());
+        // update news in db
+        repository.save(existingNews);
+        return existingNews;
     }
 }

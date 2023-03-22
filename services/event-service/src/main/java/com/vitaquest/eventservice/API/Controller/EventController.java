@@ -2,6 +2,7 @@ package com.vitaquest.eventservice.API.Controller;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.vitaquest.eventservice.Domain.DTO.AddEventDTO;
+import com.vitaquest.eventservice.Domain.DTO.UpdateEventDTO;
 import com.vitaquest.eventservice.Domain.Models.Event;
 import com.vitaquest.eventservice.Domain.Service.EventService;
 
@@ -45,6 +46,16 @@ public class EventController {
             return new ResponseEntity<>(service.addEvent(DTO), HttpStatus.CREATED);
         }
         throw new IllegalAccessException();
+    }
+
+    @ApiOperation(value = "Update event")
+    @PutMapping("/update")
+    public @ResponseBody ResponseEntity<Event> updateEvent(@RequestBody UpdateEventDTO DTO) throws IllegalAccessException {
+        Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
+        if (isAdmin(authContext)) {
+            return new ResponseEntity<>(service.updateEvent(DTO), HttpStatus.CREATED);
+        }
+        else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @ApiOperation(value = "Delete event")

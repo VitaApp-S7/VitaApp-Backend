@@ -3,6 +3,7 @@ package com.vitaquest.eventservice.Domain.Service;
 import com.vitaquest.eventservice.Database.Repository.IEventRepository;
 import com.vitaquest.eventservice.Domain.DTO.AddEventDTO;
 import com.vitaquest.eventservice.Domain.DTO.AllUserNotificationDTO;
+import com.vitaquest.eventservice.Domain.DTO.UpdateEventDTO;
 import com.vitaquest.eventservice.Domain.Models.Event;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
@@ -26,6 +27,15 @@ public class EventService {
 
     public List<Event> getAllEvents() {
         return repository.findAll();
+    }
+
+    public Event getEventByID(String eventId) {
+        Optional<Event> foundEvent = repository.findById(eventId);
+        if (foundEvent.isEmpty()) {
+            //throw not found exception
+            throw new IllegalArgumentException("Event not found");
+        }
+        return foundEvent.get();
     }
 
     public Event addEvent(AddEventDTO DTO) {
@@ -109,6 +119,14 @@ public class EventService {
         }
         return repository.save(event);
     }
-
-
+    public Event updateEvent(UpdateEventDTO DTO){
+        // get existing event by id
+        Event existingEvent = getEventByID(DTO.getId());
+        // update event fields
+        existingEvent.setTitle(DTO.getTitle());
+        existingEvent.setDescription(DTO.getDescription());
+        // update event in db
+        repository.save(existingEvent);
+        return existingEvent;
+    }
 }
