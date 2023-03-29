@@ -11,6 +11,7 @@ import io.dapr.client.DaprClientBuilder;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,18 @@ public class UserService {
     public User getUserInfo(Authentication authContext) throws IllegalAccessException {
         Map<?, ?> claims = (Map<?, ?>) FieldUtils.readField(authContext.getPrincipal(), "claims", true);
         return repository.findById((String) claims.get("oid")).get();
+    }
+
+    public Page<PublicUserDTO> getAllUsersByPageApp(Integer pageNumber, Integer pageSize) {
+        Page<User> sortUsers = listRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        List<User> users = sortUsers.getContent();
+        
+        return sortUsers.map(user -> {
+            PublicUserDTO publicUser = new PublicUserDTO();
+            publicUser.setId(user.getId());
+            publicUser.setName(user.getName());
+            return publicUser;
+        });
     }
 
     public List<PublicUserDTO> getAllUsersByPage(Integer pageNumber) {
