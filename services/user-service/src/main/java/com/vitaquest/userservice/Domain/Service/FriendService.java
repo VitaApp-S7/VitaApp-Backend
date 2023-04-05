@@ -149,19 +149,21 @@ public class FriendService {
         return friendsList;
     }
 
-    public void removeFriend(String friendObjectId) throws Exception {
+    public void removeFriend(Authentication authContext, String friendObjectId) throws Exception {
         Friend friend = friendRepository.findById(friendObjectId).get();
+        String userId = userService.getUserInfo(authContext).getId();
+        String userName = userService.getUserInfo(authContext).getName();
+        String friendUserId = friend.getUserId();
+        String friendId = friend.getFriendId();
+
+        if(!userId.equals(friendUserId) && !userId.equals(friendId)) return;
+
+        var notifyUserId = userId.equals(friendUserId) ? friendId : friendUserId;
 
         notificationService.HandleMessageToGivenUser(
-                userService.getUserById(friend.getUserId()).getExpoToken(),
+                userService.getUserById(notifyUserId).getExpoToken(),
                 "Friendship ended",
-                "Your friendship with " + userService.getUserById(friend.getFriendId()).getName() + " has ended"
-        );
-
-        notificationService.HandleMessageToGivenUser(
-                userService.getUserById(friend.getFriendId()).getExpoToken(),
-                "Friendship ended",
-                "Your friendship with " + userService.getUserById(friend.getUserId()).getName() + " has ended"
+                "Your friendship with " + userName + " has ended"
         );
 
         friendRepository.deleteById(friendObjectId);

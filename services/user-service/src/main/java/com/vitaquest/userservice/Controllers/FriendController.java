@@ -76,7 +76,8 @@ public class FriendController {
 
     @DeleteMapping(value = "/remove/{friendObjectId}")
     public void removeFriend(@PathVariable String friendObjectId) throws Exception {
-        service.removeFriend(friendObjectId);
+        Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
+        service.removeFriend(authContext, friendObjectId);
     }
 
 }
