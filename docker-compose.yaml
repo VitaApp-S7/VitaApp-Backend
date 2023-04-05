@@ -7,7 +7,7 @@ services:
     hostname: gateway
     restart: always
     ports:
-      - "5000:5000"
+      - "5010:5010"
     networks:
       - local-dev
     environment:
@@ -18,7 +18,7 @@ services:
     command: [
       "./daprd",
       "-app-id", "gateway",
-      "-app-port", "5000",
+      "-app-port", "5010",
       "-placement-host-address", "placement:50006",
       "-components-path", "/components",
       "--enable-api-logging"
