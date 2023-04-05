@@ -7,9 +7,11 @@
         <groupId>com.vitaquest</groupId>
         <artifactId>vitaquest</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>image-service</artifactId>
+    <name>image-service</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
