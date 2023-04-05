@@ -17,6 +17,7 @@
         <module>services/challenge-service</module>
         <module>services/feed-service</module>
         <module>services/event-service</module>
+        <module>services/image-service</module>
     </modules>
 
     <name>VitaQuest</name>
