@@ -7,14 +7,14 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.List;
 
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-public class UpdateChallengeDTO {
-    private String id;
+public class CreateChallengeDTO {
     private String title;
     private String description;
     private List<String> moodboosterIds;
     private Date startDate;
     private Date endDate;
 }
+

@@ -7,19 +7,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.List;
 
-@Document("buddies")
+@Document("teams")
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class Buddy {
-
+@AllArgsConstructor
+public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Type(type= "uuid-char")
+    @Type(type = "uuid-char")
     private String id;
-    private String userId;
-    private BuddyStatus status;
+    private String name;
+    private String challengeId;
+    private String reward;
+    private int score;
+    private List<Participant> participants;
 }

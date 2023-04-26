@@ -1,50 +1,45 @@
 package com.vitaquest.challengeservice.Api.controller;
 
-import com.google.common.collect.Lists;
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.vitaquest.challengeservice.Domain.DTO.CreateChallengeDTO;
+import com.vitaquest.challengeservice.Domain.DTO.CreateTeamDTO;
 import com.vitaquest.challengeservice.Domain.DTO.UpdateChallengeDTO;
+import com.vitaquest.challengeservice.Domain.DTO.UpdateTeamDTO;
 import com.vitaquest.challengeservice.Domain.Models.Challenge;
+import com.vitaquest.challengeservice.Domain.Models.Team;
 import com.vitaquest.challengeservice.Domain.Service.ChallengeService;
+import com.vitaquest.challengeservice.Domain.Service.TeamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import kotlin.Unit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.security.core.Authentication;
-
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Api(tags = "Challenge Controller")
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasAuthority('SCOPE_User.All')")
 @RestController
-@RequestMapping("challenge")
-public class ChallengeController {
+@RequestMapping("team")
+public class TeamController {
 
-    private final ChallengeService service;
+    private final TeamService service;
 
-    public ChallengeController(ChallengeService service){
+    public TeamController(TeamService service){
         this.service = service;
     }
 
     @ApiOperation(value = "Create a new challenge")
     @PostMapping(value = "/")
-    public ResponseEntity<Challenge> create(@RequestBody CreateChallengeDTO dto) throws IllegalAccessException{
+    public ResponseEntity<Team> create(@RequestBody CreateTeamDTO dto) throws IllegalAccessException{
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
 
         if(isAdmin(authContext)){
@@ -54,27 +49,21 @@ public class ChallengeController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @ApiOperation(value = "Get single challenge")
+    @ApiOperation(value = "Get single team")
     @GetMapping("/{id}")
-    public ResponseEntity<Challenge> read(@PathVariable String id){
+    public ResponseEntity<Team> read(@PathVariable String id){
         return new ResponseEntity<>(service.read(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get active challenge")
-    @GetMapping("/active")
-    public ResponseEntity<Challenge> readActive(){
-        return new ResponseEntity<>(service.readCurrentActive(), HttpStatus.OK);
+    @ApiOperation(value = "Get all teams for a challenge")
+    @GetMapping("/challenge/{challengeId}}")
+    public ResponseEntity<List<Team>> readByChallenge(@PathVariable String challengeId){
+        return new ResponseEntity<>(service.readByChallengeId(challengeId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get all challenges")
-    @GetMapping("/all")
-    public ResponseEntity<List<Challenge>> readAll(){
-        return new ResponseEntity<>(service.readAll(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Update a challenge")
+    @ApiOperation(value = "Update a team")
     @PutMapping("/")
-    public ResponseEntity<Challenge> update(@RequestBody UpdateChallengeDTO dto) throws IllegalAccessException {
+    public ResponseEntity<Team> update(@RequestBody UpdateTeamDTO dto) throws IllegalAccessException {
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
 
         if(isAdmin(authContext)){
@@ -84,7 +73,7 @@ public class ChallengeController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @ApiOperation(value = "Delete a challenge")
+    @ApiOperation(value = "Delete a team")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) throws IllegalAccessException {
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
@@ -96,6 +85,16 @@ public class ChallengeController {
 
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
+    }
+
+    @ApiOperation(value = "Join a team")
+    @PostMapping("/{id}/join")
+    public ResponseEntity<Void> join(@PathVariable String id) throws IllegalAccessException {
+        Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
+
+        service.join(authContext, id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private boolean isAdmin(Authentication authContext) throws IllegalAccessException {

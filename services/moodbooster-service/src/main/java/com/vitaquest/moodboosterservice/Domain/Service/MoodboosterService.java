@@ -124,6 +124,9 @@ public class MoodboosterService {
     public boolean cancelMoodbooster(String userMoodboosterID)
     {
         Optional<UserMoodbooster> userMoodbooster = userMoodboostersRepository.findById(userMoodboosterID);
+
+        userMoodbooster.get().getUserIds();
+
         if(userMoodbooster.isPresent()){
             UserMoodbooster booster = userMoodbooster.get();
             booster.setStatus(UserMoodboosterStatus.CANCELED);
