@@ -15,4 +15,7 @@ public class Image {
     private String id;
     private String name;
     private String url;
+    private String contentType;
+    private byte[] data;
+    private long size;
 }
