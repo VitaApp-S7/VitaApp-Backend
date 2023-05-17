@@ -3,28 +3,24 @@ package com.vitaquest.challengeservice.Domain.Service;
 import com.vitaquest.challengeservice.Authentication.IAuthenticationValidator;
 import com.vitaquest.challengeservice.Database.Repository.ChallengeRepository;
 import com.vitaquest.challengeservice.Database.Repository.TeamRepository;
-import com.vitaquest.challengeservice.Domain.DTO.CreateChallengeDTO;
-import com.vitaquest.challengeservice.Domain.DTO.UpdateChallengeDTO;
+import com.vitaquest.challengeservice.Domain.DTO.*;
 import com.vitaquest.challengeservice.Domain.Models.Challenge;
+import com.vitaquest.challengeservice.Domain.Models.Participant;
 import com.vitaquest.challengeservice.Domain.Models.Team;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
-public class ChallengeService {
+public class TeamService {
 
     private final DaprClient daprClient;
     private final ChallengeRepository challengeRepository;
@@ -33,8 +29,7 @@ public class ChallengeService {
     private final SimpleDateFormat dateFormat;
 
     @Autowired
-    public ChallengeService(ChallengeRepository challengeRepository, TeamRepository teamRepository, IAuthenticationValidator validator)
-    {
+    public TeamService(ChallengeRepository challengeRepository, TeamRepository teamRepository, IAuthenticationValidator validator) {
         this.challengeRepository = challengeRepository;
         this.teamRepository = teamRepository;
         this.validator = validator;
@@ -42,43 +37,78 @@ public class ChallengeService {
         this.daprClient = new DaprClientBuilder().build();
     }
 
-    public Challenge create(CreateChallengeDTO dto){
-        var challenge = Challenge.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .moodboosterIds(dto.getMoodboosterIds());
+    public Team create(CreateTeamDTO dto) {
+        var team = Team.builder()
+                .name(dto.getName())
+                .score(dto.getScore())
+                .challengeId(dto.getChallengeId())
+                .participants(dto.getParticipants())
+                .reward(dto.getReward());
 
-        return challengeRepository.save(challenge.build());
+        return teamRepository.save(team.build());
     }
 
-    public Challenge read(String challengeId){
-        return challengeRepository.findById(challengeId).orElse(null);
+    public Team read(String teamId) {
+        return teamRepository.findById(teamId).orElse(null);
     }
 
-    public Challenge readCurrentActive(){
-        return challengeRepository.findFirstByStartDateLessThanEqualAndEndDateGreaterThanEqual(new Date(), new Date()).orElse(null);
+    public List<Team> readByChallengeId(String challengeId) {
+        return teamRepository.findByChallengeId(challengeId);
     }
 
-    public List<Challenge> readAll(){
-        return challengeRepository.findAll();
-    }
-
-    public Challenge update(UpdateChallengeDTO dto){
-        var challenge = Challenge.builder()
+    public Team update(UpdateTeamDTO dto) {
+        var team = Team.builder()
                 .id(dto.getId())
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .moodboosterIds(dto.getMoodboosterIds());
+                .name(dto.getName())
+                .score(dto.getScore())
+                .challengeId(dto.getChallengeId())
+                .participants(dto.getParticipants())
+                .reward(dto.getReward());
 
-        return challengeRepository.save(challenge.build());
+        return teamRepository.save(team.build());
     }
 
-    public void delete(String challengeId){
-        challengeRepository.deleteById(challengeId);
+    public void delete(String teamId) {
+        teamRepository.deleteById(teamId);
+    }
+
+    public void join(Authentication authContext, String teamId) throws IllegalAccessException {
+        Map<?, ?> claims = (Map<?, ?>) FieldUtils.readField(authContext.getPrincipal(), "claims", true);
+        var team = read(teamId);
+        if (team == null) return;
+
+        var challengeId = team.getChallengeId();
+
+        var participant = new Participant();
+        participant.setName((String) claims.get("oid"));
+        participant.setUserId((String) claims.get("name"));
+
+        var allTeams = teamRepository.findByChallengeId(challengeId);
+
+        for (Team t : allTeams) {
+            var participants = t.getParticipants();
+            participants.removeIf(p -> Objects.equals(p.getUserId(), participant.getUserId()));
+            if (!Objects.equals(t.getId(), teamId)) return;
+            participants.add(participant);
+        }
+
+        teamRepository.saveAll(allTeams);
+    }
+
+    public void addPoints(Authentication authContext, AddPointsDTO dto) {
+        var team = read(dto.getTeamId());
+        if (team == null) return;
+
+        for (Participant p: team.getParticipants()) {
+            if(dto.getUserIds().contains(p.getUserId()))
+                p.setScore(p.getScore() + dto.getPoints());
+        }
+
+        team.setParticipants(team.getParticipants());
+
+        team.setScore(team.getScore());
+
+        teamRepository.save(team);
     }
 
 //

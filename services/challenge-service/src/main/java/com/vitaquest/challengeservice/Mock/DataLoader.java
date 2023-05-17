@@ -1,13 +1,9 @@
 package com.vitaquest.challengeservice.Mock;
 
 import com.vitaquest.challengeservice.Database.Repository.ChallengeRepository;
-import com.vitaquest.challengeservice.Domain.Models.Challenge;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Component
 public class DataLoader implements ApplicationRunner {

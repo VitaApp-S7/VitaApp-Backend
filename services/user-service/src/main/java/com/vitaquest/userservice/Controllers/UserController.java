@@ -14,6 +14,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,6 +83,12 @@ public class UserController {
     @GetMapping(value = "/public/page/{pageNumber}")
     public List<PublicUserDTO> getPublicUsers(@PathVariable Integer pageNumber) {
         return service.getAllUsersByPage(pageNumber);
+    }
+
+    @ApiOperation(value = "Get public users per page")
+    @GetMapping(value = "/public/pageapp/{pageSize}/{pageNumber}")
+    public Page<PublicUserDTO> getPublicUsersApp(@PathVariable Integer pageNumber, @PathVariable Integer pageSize) {
+        return service.getAllUsersByPageApp(pageNumber, pageSize);
     }
 
     @ApiOperation(value = "Get all public users")
