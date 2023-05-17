@@ -1,5 +1,6 @@
 package com.vitaquest.challengeservice.Domain.Service;
 
+import com.sun.jdi.request.InvalidRequestStateException;
 import com.vitaquest.challengeservice.Authentication.IAuthenticationValidator;
 import com.vitaquest.challengeservice.Database.Repository.ChallengeRepository;
 import com.vitaquest.challengeservice.Database.Repository.TeamRepository;
@@ -42,15 +43,29 @@ public class ChallengeService {
         this.daprClient = new DaprClientBuilder().build();
     }
 
-    public Challenge create(CreateChallengeDTO dto){
+    public Challenge create(CreateChallengeDTO dto) throws Exception {
         var challenge = Challenge.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
-                .moodboosterIds(dto.getMoodboosterIds());
+                .moodboosterIds(dto.getMoodboosterIds()).build();
 
-        return challengeRepository.save(challenge.build());
+        var challenges = challengeRepository.findAll();
+
+        if(challenges.stream().anyMatch(c -> {
+            if(challenge.getEndDate().after(c.getStartDate()) && challenge.getEndDate().before(c.getEndDate())){
+                return true;
+            }
+            if(challenge.getStartDate().after(c.getStartDate()) && challenge.getStartDate().before(c.getEndDate())){
+                return true;
+            }
+            return false;
+        })){
+            throw new Exception("Already a challenge within this date");
+        }
+
+        return challengeRepository.save(challenge);
     }
 
     public Challenge read(String challengeId){

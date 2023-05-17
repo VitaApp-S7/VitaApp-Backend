@@ -95,7 +95,6 @@ public class ChallengeController {
         }
 
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
     }
 
     private boolean isAdmin(Authentication authContext) throws IllegalAccessException {
