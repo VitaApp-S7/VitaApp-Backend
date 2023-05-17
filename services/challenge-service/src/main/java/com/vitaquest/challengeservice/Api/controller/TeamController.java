@@ -1,10 +1,7 @@
 package com.vitaquest.challengeservice.Api.controller;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
-import com.vitaquest.challengeservice.Domain.DTO.CreateChallengeDTO;
-import com.vitaquest.challengeservice.Domain.DTO.CreateTeamDTO;
-import com.vitaquest.challengeservice.Domain.DTO.UpdateChallengeDTO;
-import com.vitaquest.challengeservice.Domain.DTO.UpdateTeamDTO;
+import com.vitaquest.challengeservice.Domain.DTO.*;
 import com.vitaquest.challengeservice.Domain.Models.Challenge;
 import com.vitaquest.challengeservice.Domain.Models.Team;
 import com.vitaquest.challengeservice.Domain.Service.ChallengeService;
@@ -12,6 +9,7 @@ import com.vitaquest.challengeservice.Domain.Service.TeamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Api(tags = "Challenge Controller")
+@Api(tags = "Team Controller")
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasAuthority('SCOPE_User.All')")
 @RestController
@@ -37,7 +35,7 @@ public class TeamController {
         this.service = service;
     }
 
-    @ApiOperation(value = "Create a new challenge")
+    @ApiOperation(value = "Create a new team")
     @PostMapping(value = "/")
     public ResponseEntity<Team> create(@RequestBody CreateTeamDTO dto) throws IllegalAccessException{
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
@@ -93,6 +91,16 @@ public class TeamController {
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
 
         service.join(authContext, id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Add points to participants")
+    @PostMapping("/moodbooster/complete")
+    public ResponseEntity<Void> addPoints(@RequestBody AddPointsDTO dto){
+        Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
+
+        service.addPoints(authContext, dto);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

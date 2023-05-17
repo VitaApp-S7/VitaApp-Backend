@@ -95,11 +95,18 @@ public class TeamService {
         teamRepository.saveAll(allTeams);
     }
 
-    public void addPoints(AddPointsDTO dto) {
+    public void addPoints(Authentication authContext, AddPointsDTO dto) {
         var team = read(dto.getTeamId());
         if (team == null) return;
 
-        team.setScore(team.getScore() + dto.getPoints());
+        for (Participant p: team.getParticipants()) {
+            if(dto.getUserIds().contains(p.getUserId()))
+                p.setScore(p.getScore() + dto.getPoints());
+        }
+
+        team.setParticipants(team.getParticipants());
+
+        team.setScore(team.getScore());
 
         teamRepository.save(team);
     }

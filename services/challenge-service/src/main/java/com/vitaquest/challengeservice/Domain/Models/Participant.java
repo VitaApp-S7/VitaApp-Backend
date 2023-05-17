@@ -12,3 +12,4 @@ public class Participant {
     private String userId;
     private int score;
 }
+
