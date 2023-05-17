@@ -15,6 +15,12 @@ public class UpdateTeamDTO {
     private String name;
     private String challengeId;
     private String reward;
-    private int score;
+    public int getScore(){
+        int score = 0;
+        for (int i = 0; i < participants.size(); i++) {
+            score += participants.get(i).getScore();
+        }
+        return score;
+    };
     private List<Participant> participants;
 }

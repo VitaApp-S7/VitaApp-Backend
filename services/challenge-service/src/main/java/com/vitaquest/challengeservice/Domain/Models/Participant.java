@@ -10,4 +10,5 @@ import lombok.*;
 public class Participant {
     private String name;
     private String userId;
+    private int score;
 }
