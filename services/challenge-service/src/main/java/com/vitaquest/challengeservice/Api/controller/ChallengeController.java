@@ -44,7 +44,7 @@ public class ChallengeController {
 
     @ApiOperation(value = "Create a new challenge")
     @PostMapping(value = "/")
-    public ResponseEntity<Challenge> create(@RequestBody CreateChallengeDTO dto) throws IllegalAccessException{
+    public ResponseEntity<Challenge> create(@RequestBody CreateChallengeDTO dto) throws Exception {
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
 
         if(isAdmin(authContext)){
