@@ -1,28 +1,19 @@
 package com.vitaquest.challengeservice.Domain.Service;
 
-import com.sun.jdi.request.InvalidRequestStateException;
 import com.vitaquest.challengeservice.Authentication.IAuthenticationValidator;
 import com.vitaquest.challengeservice.Database.Repository.ChallengeRepository;
 import com.vitaquest.challengeservice.Database.Repository.TeamRepository;
 import com.vitaquest.challengeservice.Domain.DTO.CreateChallengeDTO;
 import com.vitaquest.challengeservice.Domain.DTO.UpdateChallengeDTO;
 import com.vitaquest.challengeservice.Domain.Models.Challenge;
-import com.vitaquest.challengeservice.Domain.Models.Team;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ChallengeService {
