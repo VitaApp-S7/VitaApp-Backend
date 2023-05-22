@@ -96,13 +96,19 @@ public class TeamController {
     }
 
     @ApiOperation(value = "Add points to participants")
-    @PostMapping("/moodbooster/complete")
+    @PostMapping("/addpoints")
     public ResponseEntity<Void> addPoints(@RequestBody AddPointsDTO dto){
         Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
 
         service.addPoints(authContext, dto);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Add points to participants")
+    @GetMapping("/leaderboard")
+    public ResponseEntity<GetLeaderboardDTO> getLeaderboard(){
+        return new ResponseEntity<>( service.getLeaderboard(), HttpStatus.OK);
     }
 
     private boolean isAdmin(Authentication authContext) throws IllegalAccessException {

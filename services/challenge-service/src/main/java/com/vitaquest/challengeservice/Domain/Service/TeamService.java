@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,8 +100,8 @@ public class TeamService {
         var team = read(dto.getTeamId());
         if (team == null) return;
 
-        for (Participant p: team.getParticipants()) {
-            if(dto.getUserIds().contains(p.getUserId()))
+        for (Participant p : team.getParticipants()) {
+            if (dto.getUserIds().contains(p.getUserId()))
                 p.setScore(p.getScore() + dto.getPoints());
         }
 
@@ -109,6 +110,34 @@ public class TeamService {
         team.setScore(team.getScore());
 
         teamRepository.save(team);
+    }
+
+    public GetLeaderboardDTO getLeaderboard() {
+        var dto = new GetLeaderboardDTO();
+        var allParticipants = new ArrayList<Participant>();
+
+        var teams = teamRepository.findAll();
+
+        for (Team team : teams) {
+            var teamParticipants = team.getParticipants();
+            for (Participant participant : teamParticipants) {
+                var processed = false;
+                for (Participant existingParticipant : allParticipants) {
+                    if(Objects.equals(participant.getUserId(), existingParticipant.getUserId())){
+                        existingParticipant.setScore(existingParticipant.getScore()+participant.getScore());
+                        processed = true;
+                        break;
+                    }
+                }
+                if(!processed){
+                    allParticipants.add(participant);
+                }
+            }
+        }
+
+        dto.setParticipants(allParticipants);
+
+        return dto;
     }
 
 //
