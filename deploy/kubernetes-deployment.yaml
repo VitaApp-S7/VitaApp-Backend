@@ -307,16 +307,21 @@ spec:
           env:
             - name: spring_profiles_active
               value: production
-            - name: AZURE_STORAGE_CONNECTION_STRING
+            - name: AZURE_STORAGE_ACCOUNT_KEY
               valueFrom:
                 secretKeyRef:
                   name: env-vars
-                  key: AZURE_STORAGE_CONNECTION_STRING
+                  key: AZURE_STORAGE_ACCOUNT_KEY
             - name: AZURE_STORAGE_CONTAINER_NAME
               valueFrom:
                 secretKeyRef:
                   name: env-vars
                   key: AZURE_STORAGE_CONTAINER_NAME
+            - name: AZURE_STORAGE_ACCOUNT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: AZURE_STORAGE_ACCOUNT_NAME
       imagePullSecrets: # Token secret for pulling private Docker image from GitHub
         - name: dockerconfigjson-github-com
 
