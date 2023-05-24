@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
+import java.util.UUID;
 
 @Service
 public class ImageService {
@@ -76,50 +77,32 @@ public class ImageService {
         // Get a reference to the container
         CloudBlobContainer container = blobClient.getContainerReference(containerName);
 
-        // Generate a unique identifier for the blob
-        //String blobName = UUID.randomUUID().toString();
-        String blobName = dto.getName();
-        System.out.println(String.format("Creating blob '%s' in container '%s' in storage account '%s'...", blobName, containerName, accountName));
+        String generatedName = UUID.randomUUID().toString();
 
         // Create a CloudBlockBlob object and set the blob name
-        CloudBlockBlob blob = container.getBlockBlobReference(blobName);
-
-        // Convert the base64 encoded string to a byte array
-        //byte[] imageBytes = Base64.getDecoder().decode(dto.getData());
-
-        // Upload the image byte array to the blob
-        //ByteArrayInputStream inputStream = new ByteArrayInputStream(dto.getData());
-        //blob.upload(inputStream, dto.getData().length);
+        CloudBlockBlob blob = container.getBlockBlobReference(generatedName);
 
         byte[] decodedImageData = Base64.getDecoder().decode(dto.getData());
         ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedImageData);
         blob.upload(inputStream, decodedImageData.length);
 
+        System.out.println(String.format("Blob '%s' uploaded successfully to container '%s' in storage account '%s'.", generatedName, containerName, accountName));
 
-        System.out.println(String.format("Blob '%s' uploaded successfully to container '%s' in storage account '%s'.", blobName, containerName, accountName));
-
-        // Set the content type of the blob based on the image format
-        //String contentType = "image/" + dto.getContentType().toLowerCase();
-        //blob.getProperties().setContentType(contentType);
         blob.uploadProperties();
 
         // Create an Image object and set the properties
         Image newImage = new Image();
-        newImage.setId(blobName);
-        //newImage.setUrl(blob.getUri().toString());
+        newImage.setId(generatedName);
         newImage.setUrl(blob.getUri().toString());
-        //image.setName(dto.getName());
-        //image.setContentType(dto.getContentType());
         newImage.setSize(dto.getSize());
-        //image.setContentType(contentType);
 
-        System.out.println(String.format("Blob '%s' created successfully in container '%s' in storage account '%s'.", blobName, containerName, accountName));
         return newImage;
     }
 
 
 
     public void deleteImageByID(String imageId) throws Exception {
+
     }
 
 
