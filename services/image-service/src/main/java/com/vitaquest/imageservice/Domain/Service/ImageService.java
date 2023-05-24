@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.vitaquest.imageservice.Domain.DTO.AddImageDTO;
 import com.vitaquest.imageservice.Domain.Models.Image;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -16,6 +17,19 @@ import java.util.Base64;
 
 @Service
 public class ImageService {
+
+    @Value("${AZURE_STORAGE_ACCOUNT_ENDPOINT}")
+    private String AZURE_STORAGE_ACCOUNT_ENDPOINT;
+
+    @Value("${AZURE_STORAGE_ACCOUNT_KEY}")
+    private String accountKey;
+
+    @Value("${AZURE_STORAGE_CONTAINER_NAME}")
+    private String containerName;
+
+    @Value("${AZURE_STORAGE_ACCOUNT_NAME}")
+    private String accountName;
+
     public BufferedImage getImageByID(String blobName) throws Exception {
         // Create a connection string to your Azure Storage account
         String connectionString = String.format("DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;", accountName, accountKey);
