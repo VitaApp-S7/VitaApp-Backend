@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface IUserMoodboosterInviteRepository extends MongoRepository<UserMoodboosterInvite, String> {
     List<UserMoodboosterInvite> getAllByInvitedUserId(String invitedUserId);
     void deleteAllByUserMoodboosterId(String userMoodboosterId);
+    List<UserMoodboosterInvite> getAllByUserMoodboosterId(String userMoodboosterId);
+    List<UserMoodboosterInvite> getAllDistinctByUserMoodboosterId(String userMoodboosterId);
     Optional<UserMoodboosterInvite> findByInvitedUserIdAndUserMoodboosterId(String InvitedUserId, String UserMoodboosterId);
 }

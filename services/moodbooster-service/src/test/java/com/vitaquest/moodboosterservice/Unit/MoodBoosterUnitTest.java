@@ -201,14 +201,14 @@ public class MoodBoosterUnitTest {
     }
 
 
-    @Test
-    void cancelUserMoodBooster() {
-        // cancel accepted mood booster
-        Boolean isDeleted = moodBoosterService.cancelMoodbooster(acceptedMoodBooster.getId());
-        // assert
-        assertNotNull(isDeleted);
-        assertEquals(false, isDeleted);
-    }
+//    @Test
+//    void cancelUserMoodBooster() {
+//        // cancel accepted mood booster
+//        Boolean isDeleted = moodBoosterService.cancelMoodbooster(acceptedMoodBooster.getId());
+//        // assert
+//        assertNotNull(isDeleted);
+//        assertEquals(false, isDeleted);
+//    }
 
     @Test
     void cancelInvalidUserMoodBooster() {

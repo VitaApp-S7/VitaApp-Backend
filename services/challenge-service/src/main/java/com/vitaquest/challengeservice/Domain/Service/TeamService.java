@@ -3,20 +3,25 @@ package com.vitaquest.challengeservice.Domain.Service;
 import com.vitaquest.challengeservice.Authentication.IAuthenticationValidator;
 import com.vitaquest.challengeservice.Database.Repository.ChallengeRepository;
 import com.vitaquest.challengeservice.Database.Repository.TeamRepository;
-import com.vitaquest.challengeservice.Domain.DTO.CreateChallengeDTO;
-import com.vitaquest.challengeservice.Domain.DTO.UpdateChallengeDTO;
+import com.vitaquest.challengeservice.Domain.DTO.*;
 import com.vitaquest.challengeservice.Domain.Models.Challenge;
+import com.vitaquest.challengeservice.Domain.Models.Participant;
+import com.vitaquest.challengeservice.Domain.Models.Team;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
-public class ChallengeService {
+public class TeamService {
 
     private final DaprClient daprClient;
     private final ChallengeRepository challengeRepository;
@@ -25,8 +30,7 @@ public class ChallengeService {
     private final SimpleDateFormat dateFormat;
 
     @Autowired
-    public ChallengeService(ChallengeRepository challengeRepository, TeamRepository teamRepository, IAuthenticationValidator validator)
-    {
+    public TeamService(ChallengeRepository challengeRepository, TeamRepository teamRepository, IAuthenticationValidator validator) {
         this.challengeRepository = challengeRepository;
         this.teamRepository = teamRepository;
         this.validator = validator;
@@ -34,57 +38,106 @@ public class ChallengeService {
         this.daprClient = new DaprClientBuilder().build();
     }
 
-    public Challenge create(CreateChallengeDTO dto) throws Exception {
-        var challenge = Challenge.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .moodboosterIds(dto.getMoodboosterIds()).build();
+    public Team create(CreateTeamDTO dto) {
+        var team = Team.builder()
+                .name(dto.getName())
+                .score(dto.getScore())
+                .challengeId(dto.getChallengeId())
+                .participants(dto.getParticipants())
+                .reward(dto.getReward());
 
-        var challenges = challengeRepository.findAll();
+        return teamRepository.save(team.build());
+    }
 
-        if(challenges.stream().anyMatch(c -> {
-            if(challenge.getEndDate().after(c.getStartDate()) && challenge.getEndDate().before(c.getEndDate())){
-                return true;
-            }
-            if(challenge.getStartDate().after(c.getStartDate()) && challenge.getStartDate().before(c.getEndDate())){
-                return true;
-            }
-            return false;
-        })){
-            throw new Exception("Already a challenge within this date");
+    public Team read(String teamId) {
+        return teamRepository.findById(teamId).orElse(null);
+    }
+
+    public List<Team> readByChallengeId(String challengeId) {
+        return teamRepository.findByChallengeId(challengeId);
+    }
+
+    public Team update(UpdateTeamDTO dto) {
+        var team = Team.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .score(dto.getScore())
+                .challengeId(dto.getChallengeId())
+                .participants(dto.getParticipants())
+                .reward(dto.getReward());
+
+        return teamRepository.save(team.build());
+    }
+
+    public void delete(String teamId) {
+        teamRepository.deleteById(teamId);
+    }
+
+    public void join(Authentication authContext, String teamId) throws IllegalAccessException {
+        Map<?, ?> claims = (Map<?, ?>) FieldUtils.readField(authContext.getPrincipal(), "claims", true);
+        var team = read(teamId);
+        if (team == null) return;
+
+        var challengeId = team.getChallengeId();
+
+        var participant = new Participant();
+        participant.setName((String) claims.get("oid"));
+        participant.setUserId((String) claims.get("name"));
+
+        var allTeams = teamRepository.findByChallengeId(challengeId);
+
+        for (Team t : allTeams) {
+            var participants = t.getParticipants();
+            participants.removeIf(p -> Objects.equals(p.getUserId(), participant.getUserId()));
+            if (!Objects.equals(t.getId(), teamId)) return;
+            participants.add(participant);
         }
 
-        return challengeRepository.save(challenge);
+        teamRepository.saveAll(allTeams);
     }
 
-    public Challenge read(String challengeId){
-        return challengeRepository.findById(challengeId).orElse(null);
+    public void addPoints(Authentication authContext, AddPointsDTO dto) {
+        var team = read(dto.getTeamId());
+        if (team == null) return;
+
+        for (Participant p : team.getParticipants()) {
+            if (dto.getUserIds().contains(p.getUserId()))
+                p.setScore(p.getScore() + dto.getPoints());
+        }
+
+        team.setParticipants(team.getParticipants());
+
+        team.setScore(team.getScore());
+
+        teamRepository.save(team);
     }
 
-    public Challenge readCurrentActive(){
-        return challengeRepository.findFirstByStartDateLessThanEqualAndEndDateGreaterThanEqual(new Date(), new Date()).orElse(null);
-    }
+    public GetLeaderboardDTO getLeaderboard() {
+        var dto = new GetLeaderboardDTO();
+        var allParticipants = new ArrayList<Participant>();
 
-    public List<Challenge> readAll(){
-        return challengeRepository.findAll();
-    }
+        var teams = teamRepository.findAll();
 
-    public Challenge update(UpdateChallengeDTO dto){
-        var challenge = Challenge.builder()
-                .id(dto.getId())
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .moodboosterIds(dto.getMoodboosterIds());
+        for (Team team : teams) {
+            var teamParticipants = team.getParticipants();
+            for (Participant participant : teamParticipants) {
+                var processed = false;
+                for (Participant existingParticipant : allParticipants) {
+                    if(Objects.equals(participant.getUserId(), existingParticipant.getUserId())){
+                        existingParticipant.setScore(existingParticipant.getScore()+participant.getScore());
+                        processed = true;
+                        break;
+                    }
+                }
+                if(!processed){
+                    allParticipants.add(participant);
+                }
+            }
+        }
 
-        return challengeRepository.save(challenge.build());
-    }
+        dto.setParticipants(allParticipants);
 
-    public void delete(String challengeId){
-        challengeRepository.deleteById(challengeId);
+        return dto;
     }
 
 //
