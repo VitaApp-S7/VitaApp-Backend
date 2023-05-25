@@ -23,14 +23,6 @@ spring:
           issuer-uri: https://login.microsoftonline.com/913b1a98-9696-4db5-b548-9e17b6d3fc68/v2.0
           audiences: 215b09e4-54cb-49aa-837b-546f73fc29f6
 
-  cloud:
-    azure:
-      storage:
-        blob:
-          account-name: ${AZURE_STORAGE_ACCOUNT_NAME}
-          account-key: ${AZURE_STORAGE_ACCOUNT_KEY}
-
-
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

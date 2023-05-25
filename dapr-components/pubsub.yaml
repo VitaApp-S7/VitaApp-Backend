@@ -27,3 +27,4 @@ scopes:
   - challenge-service
   - event-service
   - feed-service
+  - image-service

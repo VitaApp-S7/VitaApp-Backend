@@ -18,6 +18,7 @@ env:
   GATEWAY_TAG_PUSH: ghcr.io/vitaapp-s7/gateway
   FEED_TAG_PUSH: ghcr.io/vitaapp-s7/feed-service
   EVENT_TAG_PUSH: ghcr.io/vitaapp-s7/event-service
+  IMAGE_TAG_PUSH: ghcr.io/vitaapp-s7/image-service
 
 jobs:
 
@@ -92,6 +93,23 @@ jobs:
             ${{ env.CHALLENGE_TAG_PUSH }}:${{ github.sha }}
             ${{ env.CHALLENGE_TAG_PUSH }}:latest
 
+      - name: Build & push image
+        uses: docker/build-push-action@v2
+        with:
+          context: services/image-service
+          push: true
+          tags: |
+            ${{ env.IMAGE_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.IMAGE_TAG_PUSH }}:latest
+
+      - name: Build & push event
+        uses: docker/build-push-action@v2
+        with:
+          context: services/event-service
+          push: true
+          tags: |
+            ${{ env.EVENT_TAG_PUSH }}:${{ github.sha }}
+            ${{ env.EVENT_TAG_PUSH }}:latest
 
       - name: Build & push feed
         uses: docker/build-push-action@v2
@@ -101,15 +119,6 @@ jobs:
           tags: |
             ${{ env.FEED_TAG_PUSH }}:${{ github.sha }}
             ${{ env.FEED_TAG_PUSH }}:latest
-
-      - name: Build & push event
-        uses: docker/build-push-action@v2
-        with:
-          context: services/event-service
-          push: true
-          tags: | 
-            ${{ env.EVENT_TAG_PUSH }}:${{ github.sha }}
-            ${{ env.EVENT_TAG_PUSH }}:latest
 
 
 # Automatisch deployen werkt voorlopig niet omdat we niet genoeg rechten hebben in Azure. Voor nu kunnen we handmatig deployen.
