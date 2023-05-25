@@ -54,6 +54,12 @@ spring:
             - Path=/event/**
           filters:
             - RewritePath=/event/(?<segment>.*), /v1.0/invoke/event-service/method/$\{segment}
+        - id: image-service
+          uri: http://localhost:3500
+          predicates:
+            - Path=/image/**
+          filters:
+            - RewritePath=/image/(?<segment>.*), /v1.0/invoke/image-service/method/$\{segment}
 
   security:
     oauth2:

@@ -118,8 +118,6 @@ spec:
 
 ---
 
----
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -282,6 +280,55 @@ spec:
 
 ---
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imageservice-deployment # Name of the deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: imageservice-pod # The deployment will target pods with this name
+  template:
+    metadata:
+      labels:
+        app: imageservice-pod # Name of the pods
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "image-service"
+        dapr.io/app-port: "5009"
+    spec:
+      containers:
+        - name: imageservice-container # Name we want to give the container
+          image: ghcr.io/vitaapp-s7/image-service:latest # Remote Docker image
+          ports:
+            - containerPort: 5009 # Expose the port that the service/app runs on
+          imagePullPolicy: Always
+          env:
+            - name: spring_profiles_active
+              value: production
+            - name: AZURE_STORAGE_ACCOUNT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: AZURE_STORAGE_ACCOUNT_KEY
+            - name: AZURE_STORAGE_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: AZURE_STORAGE_CONTAINER_NAME
+            - name: AZURE_STORAGE_ACCOUNT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: env-vars
+                  key: AZURE_STORAGE_ACCOUNT_NAME
+      imagePullSecrets: # Token secret for pulling private Docker image from GitHub
+        - name: dockerconfigjson-github-com
+
+---
+
+---
+
 kind: Service
 apiVersion: v1
 metadata:
@@ -385,4 +432,19 @@ spec:
     - name: default
       port: 5008 # Port that we want to reach the service running on the pods on
       targetPort: 5008 # Port that the running service exposes within the container
+  type: ClusterIP
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: imageservice-service # Name of the service
+spec:
+  selector:
+    app: imageservice-pod # Send traffic to pods with this label
+  ports:
+    - name: default
+      port: 5009 # Port that we want to reach the service running on the pods on
+      targetPort: 5009 # Port that the running service exposes within the container
   type: ClusterIP

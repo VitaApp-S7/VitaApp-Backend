@@ -254,6 +254,42 @@ services:
       - event-service
     network_mode: "service:event-service"
 
+  image-service:
+    build: services/image-service
+    hostname: image-service
+    restart: always
+    ports:
+      - "5009:5009"
+      - "50009:50009"
+    depends_on:
+      - rabbitmq
+      - placement
+    networks:
+      - local-dev
+    environment:
+      AZURE_STORAGE_ACCOUNT_ENDPOINT: ${AZURE_STORAGE_ACCOUNT_ENDPOINT}
+      AZURE_STORAGE_ACCOUNT_KEY: ${AZURE_STORAGE_ACCOUNT_KEY}
+      AZURE_STORAGE_CONTAINER_NAME: ${AZURE_STORAGE_CONTAINER_NAME}
+      AZURE_STORAGE_ACCOUNT_NAME: ${AZURE_STORAGE_ACCOUNT_NAME}
+    env_file:
+      - .env
+
+  image-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "-app-id", "image-service",
+      "-app-port", "5009",
+      "-placement-host-address", "placement:50006",
+      "-components-path", "/components",
+      "--enable-api-logging"
+    ]
+    volumes:
+      - "./dapr-components/:/components"
+    depends_on:
+      - image-service
+    network_mode: "service:image-service"
+
 networks:
   local-dev:
 
