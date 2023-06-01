@@ -54,9 +54,20 @@ public class TeamController {
     }
 
     @ApiOperation(value = "Get all teams for a challenge")
-    @GetMapping("/challenge/{challengeId}}")
+    @GetMapping("/challenge/{challengeId}")
     public ResponseEntity<List<Team>> readByChallenge(@PathVariable String challengeId){
         return new ResponseEntity<>(service.readByChallengeId(challengeId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get all teams for a challenge")
+    @DeleteMapping("/challenge/{challengeId}")
+    public ResponseEntity<Void> deleteByChallenge(@PathVariable String challengeId){
+        var teams = service.readByChallengeId(challengeId);
+        for (var team: teams
+             ) {
+            service.delete(team.getId());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "Update a team")
