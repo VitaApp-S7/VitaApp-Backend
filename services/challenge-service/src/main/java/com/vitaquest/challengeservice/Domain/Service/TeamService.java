@@ -91,6 +91,7 @@ public class TeamService {
             participants.removeIf(p -> Objects.equals(p.getUserId(), participant.getUserId()));
             if (!Objects.equals(t.getId(), teamId)) return;
             participants.add(participant);
+            t.setParticipants(participants);
         }
 
         teamRepository.saveAll(allTeams);
