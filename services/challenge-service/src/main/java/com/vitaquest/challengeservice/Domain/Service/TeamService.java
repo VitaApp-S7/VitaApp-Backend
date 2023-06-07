@@ -82,7 +82,7 @@ public class TeamService {
         var team = read(teamId);
         if (team == null) return;
         var challengeId = team.getChallengeId();
-        var participant = Participant.builder().name((String) claims.get("oid")).userId((String) claims.get("name")).build();
+        var participant = Participant.builder().userId((String) claims.get("oid")).name((String) claims.get("name")).build();
         var allTeams = teamRepository.findByChallengeId(challengeId);
         for (Team t : allTeams) {
             var participants = t.getParticipants();
