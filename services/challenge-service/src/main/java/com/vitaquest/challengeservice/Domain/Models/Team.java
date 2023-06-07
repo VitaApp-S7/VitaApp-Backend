@@ -15,6 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

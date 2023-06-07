@@ -10,6 +10,8 @@ import com.vitaquest.challengeservice.Domain.Models.Team;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final IAuthenticationValidator validator;
     private final SimpleDateFormat dateFormat;
+
+    Logger logger = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
     public TeamService(ChallengeRepository challengeRepository, TeamRepository teamRepository, IAuthenticationValidator validator) {
@@ -77,21 +81,14 @@ public class TeamService {
         Map<?, ?> claims = (Map<?, ?>) FieldUtils.readField(authContext.getPrincipal(), "claims", true);
         var team = read(teamId);
         if (team == null) return;
-
         var challengeId = team.getChallengeId();
-
-        var participant = new Participant();
-        participant.setName((String) claims.get("oid"));
-        participant.setUserId((String) claims.get("name"));
-
+        var participant = Participant.builder().name((String) claims.get("oid")).userId((String) claims.get("name")).build();
         var allTeams = teamRepository.findByChallengeId(challengeId);
-
         for (Team t : allTeams) {
             var participants = t.getParticipants();
-            participants.removeIf(p -> Objects.equals(p.getUserId(), participant.getUserId()));
-            if (!Objects.equals(t.getId(), teamId)) return;
+            participants.removeIf(p -> p.getUserId().contentEquals(participant.getUserId()));
+            if (!teamId.contentEquals(t.getId())) continue;
             participants.add(participant);
-            t.setParticipants(participants);
         }
 
         teamRepository.saveAll(allTeams);
