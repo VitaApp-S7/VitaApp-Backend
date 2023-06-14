@@ -105,7 +105,7 @@ public class TeamService {
 
         team.setParticipants(team.getParticipants());
 
-        team.setScore(team.getScore());
+        team.setScore(team.getScore() + dto.getPoints());
 
         teamRepository.save(team);
     }
