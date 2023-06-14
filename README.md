@@ -16,6 +16,7 @@
 | /challenge/*   | Challenge service | Prefix for all challenge-service requests   |
 | /feed/*        | Feed service      | Prefix for all challenge-service requests   |
 | /event/*       | Event service     | Prefix for all event-service requests       |
+| /image/*       | Image service     | Prefix for all image-service requests       |
 
 ### moodbooster-service
 
