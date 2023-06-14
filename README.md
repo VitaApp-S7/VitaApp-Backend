@@ -152,3 +152,12 @@
 | /check-user/{eventId} | Checks if user is in a event. If not, add user. If the user is in a event then remove user from that event |  PUT   |
 | /join/{eventId}       | Adds logged in user to event                                                                               |  PUT   |
 | /leave/{eventId}      | Removes logged in user from event                                                                          |  PUT   |
+
+### Image service
+
+#### Image controller
+
+| URL            | Function          |  Type  |
+| -------------- | ----------------- | :----: |
+| /image/         | Add an image    |  POST  |
+| /image/{imageId} | Delete an image | DELETE |
